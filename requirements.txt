@@ -1,0 +1,18 @@
+# ----- Core framework -----
+Django>=4.2,<5.0
+djangorestframework>=3.14
+
+# ----- CORS for React front-end -----
+django-cors-headers>=3.14
+
+# ----- Postgres driver (ArrayField, etc.) -----
+psycopg2-binary>=2.9
+
+# ----- HTTP client to forward to Zapier -----
+requests>=2.32
+
+# ----- .env loader for local dev (Render injects vars automatically) -----
+python-dotenv>=1.0
+
+# ----- WSGI server for Render -----
+gunicorn>=21.2
