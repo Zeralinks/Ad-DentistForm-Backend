@@ -33,8 +33,15 @@ SECRET_KEY = 'django-insecure-az3uq*#$d#oweu9ln=v+h0g_^jzavn+x0etsc!6eux87t!*7=g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
 
+ALLOWED_HOSTS = [
+    # Render production hostname  ────────────────
+    "ad-dentistform-backend.onrender.com",
+
+    # Local development hostnames  ───────────────
+    "localhost",          # http://localhost:8000
+    "127.0.0.1",          # http://127.0.0.1:8000
+]
 
 # Application definition
 
