@@ -34,14 +34,7 @@ SECRET_KEY = 'django-insecure-az3uq*#$d#oweu9ln=v+h0g_^jzavn+x0etsc!6eux87t!*7=g
 DEBUG = True
 
 
-ALLOWED_HOSTS = [
-    # Render production hostname  ────────────────
-    "ad-dentistform-backend.onrender.com",
-
-    # Local development hostnames  ───────────────
-    "localhost",          # http://localhost:8000
-    "127.0.0.1",          # http://127.0.0.1:8000
-]
+ALLOWED_HOSTS = ["ad-dentistform-backend.onrender.com", "localhost", "127.0.0.1"]
 
 # Application definition
 
@@ -142,10 +135,11 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # For local testing
-    "http://localhost:5174",  # For local testing
-    "http://localhost:5175",  # For local testing
-    "http://localhost:5176",  # For local testing
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:5175",
+    "http://localhost:5176",
+    "https://ad-dentist-form.vercel.app",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = False  # Make sure this is False
