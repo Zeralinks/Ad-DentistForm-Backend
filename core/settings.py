@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "intake",  
-    'rest_framework_simplejwt',
     'whitenoise.runserver_nostatic', # For serving static files in development
 ]
 
