@@ -1,9 +1,9 @@
+# intake/urls.py
 from django.urls import path
-from .views import lead_view
+from .views import lead_view, LeadListCreateView, LeadDetailView
 
 urlpatterns = [
-    path("lead/", lead_view, name="lead"),
+    path("lead/", lead_view, name="lead-intake"),                 # POST (public form)
+    path("leads/", LeadListCreateView.as_view(), name="leads"),   # GET list, POST create
+    path("leads/<int:pk>/", LeadDetailView.as_view(), name="lead-detail"),  # GET, PATCH
 ]
-# intake/urls.py
-# This file defines the URL patterns for the intake app, mapping the lead endpoint to the lead_view function.
-# It allows the lead_view to handle POST requests for creating new leads.   

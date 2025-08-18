@@ -57,3 +57,46 @@ class LeadSerializer(serializers.ModelSerializer):
         # Persist
         lead = Lead.objects.create(**validated_data, **q)
         return lead
+
+class LeadDashboardSerializer(serializers.ModelSerializer):
+    name        = serializers.SerializerMethodField()
+    qualification = serializers.CharField(source="qualification_status", read_only=True)
+    createdAt   = serializers.DateTimeField(source="submitted_at", read_only=True)
+    lastContact = serializers.DateTimeField(source="last_contact", required=False, allow_null=True)
+
+    class Meta:
+        model = Lead
+        fields = [
+            "id", "name", "email", "phone",
+            "source", "service", "status",
+            "qualification", "notes",
+            "createdAt", "lastContact",
+        ]
+
+    def get_name(self, obj):
+        return f"{(obj.first_name or '').strip()} {(obj.last_name or '').strip()}".strip()
+
+class LeadDashboardCreateSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(write_only=True, required=False, allow_blank=True)
+
+    class Meta:
+        model = Lead
+        fields = ["name", "first_name", "last_name", "email", "phone", "source", "service", "status", "notes"]
+
+    def create(self, data):
+        name = data.pop("name", "").strip()
+        if name and not (data.get("first_name") or data.get("last_name")):
+            parts = name.split()
+            data["first_name"] = parts[0]
+            data["last_name"]  = " ".join(parts[1:]) if len(parts) > 1 else ""
+        # dashboard add = no qualification run here (keep default “nurture”)
+        return super().create(data)
+
+class LeadDashboardPatchSerializer(serializers.ModelSerializer):
+    qualification = serializers.CharField(source="qualification_status", required=False)
+    lastContact   = serializers.DateTimeField(source="last_contact", required=False, allow_null=True)
+
+    class Meta:
+        model = Lead
+        fields = ["status", "qualification", "lastContact", "notes", "service", "source"]
+        extra_kwargs = {f: {"required": False} for f in fields}

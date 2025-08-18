@@ -1,6 +1,13 @@
 # intake/models.py
 from django.db import models
 
+STATUS_CHOICES = [
+    ("new", "New"),
+    ("contacted", "Contacted"),
+    ("follow-up", "Follow-up"),
+    ("booked", "Booked"),
+]
+
 class Lead(models.Model):
     first_name  = models.CharField(max_length=80)
     last_name   = models.CharField(max_length=80)
@@ -19,6 +26,11 @@ class Lead(models.Model):
     financing   = models.CharField(max_length=20, blank=True)
     notes       = models.TextField(blank=True)
     hipaa       = models.BooleanField(default=False)
+
+    source      = models.CharField(max_length=50, blank=True, default="")
+    service     = models.CharField(max_length=80, blank=True, default="")
+    status      = models.CharField(max_length=20, choices=STATUS_CHOICES, default="new")
+    last_contact = models.DateTimeField(null=True, blank=True)
 
     # Auto-qualification results
     qualification_status  = models.CharField(
