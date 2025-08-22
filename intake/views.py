@@ -43,7 +43,7 @@ def lead_view(request):
 # ---------- DASHBOARD: LIST + CREATE ----------
 class LeadListCreateView(APIView):
     # Use AllowAny while testing; switch to IsAuthenticated once JWT works
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request):
         qs = Lead.objects.all().order_by("-submitted_at")

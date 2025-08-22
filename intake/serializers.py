@@ -1,7 +1,7 @@
 # intake/serializers.py
 from rest_framework import serializers
 from .models import Lead
-from .service.qualification import qualify
+from .services.qualification import qualify
 
 class LeadSerializer(serializers.ModelSerializer):
     # Accept camelCase from your form
