@@ -58,23 +58,51 @@ class LeadSerializer(serializers.ModelSerializer):
         lead = Lead.objects.create(**validated_data, **q)
         return lead
 
+# intake/serializers.py
 class LeadDashboardSerializer(serializers.ModelSerializer):
-    name        = serializers.SerializerMethodField()
+    # existing
+    name          = serializers.SerializerMethodField()
     qualification = serializers.CharField(source="qualification_status", read_only=True)
-    createdAt   = serializers.DateTimeField(source="submitted_at", read_only=True)
-    lastContact = serializers.DateTimeField(source="last_contact", required=False, allow_null=True)
+    createdAt     = serializers.DateTimeField(source="submitted_at", read_only=True)
+    lastContact   = serializers.DateTimeField(source="last_contact", required=False, allow_null=True)
+
+    # NEW: match your table’s fields
+    firstName = serializers.CharField(source="first_name", read_only=True)
+    lastName  = serializers.CharField(source="last_name", read_only=True)
+    insurance = serializers.CharField(read_only=True)
+    urgency   = serializers.CharField(read_only=True)
+    situation = serializers.CharField(read_only=True)
+
+    # Your table reads *_status/score/reasons directly
+    qualification_status  = serializers.CharField(read_only=True)
+    qualification_score   = serializers.IntegerField(read_only=True)
+    qualification_reasons = serializers.ListField(child=serializers.CharField(), read_only=True)
+
+    # The table uses submitted_at (snake) — keep both for compatibility
+    submitted_at = serializers.DateTimeField(source="submitted_at", read_only=True)
+
+    # actions use tags and notes
+    tags  = serializers.ListField(child=serializers.CharField(), read_only=True)
+    notes = serializers.CharField(read_only=True)
 
     class Meta:
         model = Lead
         fields = [
-            "id", "name", "email", "phone",
-            "source", "service", "status",
-            "qualification", "notes",
-            "createdAt", "lastContact",
+            # identity
+            "id", "firstName", "lastName", "name",
+            # contact
+            "email", "phone",
+            # lead info
+            "insurance", "urgency", "situation", "source", "service", "status", "notes", "tags",
+            # qualification (both alias + raw fields your UI reads)
+            "qualification", "qualification_status", "qualification_score", "qualification_reasons",
+            # dates (both)
+            "createdAt", "submitted_at", "lastContact",
         ]
 
     def get_name(self, obj):
         return f"{(obj.first_name or '').strip()} {(obj.last_name or '').strip()}".strip()
+
 
 class LeadDashboardCreateSerializer(serializers.ModelSerializer):
     name = serializers.CharField(write_only=True, required=False, allow_blank=True)
@@ -94,9 +122,11 @@ class LeadDashboardCreateSerializer(serializers.ModelSerializer):
 
 class LeadDashboardPatchSerializer(serializers.ModelSerializer):
     qualification = serializers.CharField(source="qualification_status", required=False)
-    lastContact   = serializers.DateTimeField(source="last_contact", required=False, allow_null=True)
+    lastContact = serializers.DateTimeField(source="last_contact", required=False, allow_null=True)
+    tags = serializers.ListField(child=serializers.CharField(), required=False)
+
 
     class Meta:
         model = Lead
-        fields = ["status", "qualification", "lastContact", "notes", "service", "source"]
+        fields = ["status", "qualification", "lastContact", "notes", "service", "source", "tags"]
         extra_kwargs = {f: {"required": False} for f in fields}
