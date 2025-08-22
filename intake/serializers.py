@@ -97,20 +97,45 @@ class LeadDashboardSerializer(serializers.ModelSerializer):
 
 
 
+# intake/serializers.py
+
 class LeadDashboardCreateSerializer(serializers.ModelSerializer):
+    # let users type a single "name" or split fields
     name = serializers.CharField(write_only=True, required=False, allow_blank=True)
+
+    # OPTIONAL incoming fields when creating manually
+    qualification = serializers.CharField(source="qualification_status", required=False, allow_blank=True)
+    qualification_score = serializers.IntegerField(required=False)
+    qualification_reasons = serializers.ListField(
+        child=serializers.CharField(), required=False
+    )
+    tags = serializers.ListField(child=serializers.CharField(), required=False)
 
     class Meta:
         model = Lead
-        fields = ["name", "first_name", "last_name", "email", "phone", "source", "service", "status", "notes"]
+        fields = [
+            "name", "first_name", "last_name",
+            "email", "phone",
+            "source", "service", "status",
+            "insurance", "urgency", "situation",
+            "notes", "tags",
+            "qualification", "qualification_score", "qualification_reasons",
+        ]
 
     def create(self, data):
-        name = data.pop("name", "").strip()
+        # support "name" → split into first/last if those are empty
+        name = (data.pop("name", "") or "").strip()
         if name and not (data.get("first_name") or data.get("last_name")):
             parts = name.split()
             data["first_name"] = parts[0]
             data["last_name"]  = " ".join(parts[1:]) if len(parts) > 1 else ""
-        # dashboard add = no qualification run here (keep default “nurture”)
+
+        # defaults if not provided
+        data.setdefault("qualification_status", "nurture")
+        data.setdefault("qualification_score", 0)
+        data.setdefault("qualification_reasons", [])
+        data.setdefault("tags", [])
+
         return super().create(data)
 
 class LeadDashboardPatchSerializer(serializers.ModelSerializer):
@@ -123,3 +148,24 @@ class LeadDashboardPatchSerializer(serializers.ModelSerializer):
         model = Lead
         fields = ["status", "qualification", "lastContact", "notes", "service", "source", "tags"]
         extra_kwargs = {f: {"required": False} for f in fields}
+
+
+from rest_framework import serializers
+from .models import FollowUpTemplate, FollowUpJob
+
+class FollowUpTemplateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FollowUpTemplate
+        fields = "__all__"
+
+class FollowUpJobSerializer(serializers.ModelSerializer):
+    lead_name = serializers.SerializerMethodField()
+    email     = serializers.CharField(source="lead.email", read_only=True)
+
+    class Meta:
+        model = FollowUpJob
+        fields = ["id","status","scheduled_for","sent_at","last_error","template","lead","lead_name","email"]
+
+    def get_lead_name(self, obj):
+        f, l = (obj.lead.first_name or "").strip(), (obj.lead.last_name or "").strip()
+        return (f" {l}".join([f, l])).strip() or obj.lead.email

@@ -45,3 +45,36 @@ class Lead(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.email}"
+
+# add to the bottom of models.py
+
+class FollowUpTemplate(models.Model):
+    CHANNELS = [("email", "Email"), ("sms", "SMS")]
+    TRIGGERS = [("qualified","Qualified"), ("nurture","Nurture"), ("disqualified","Disqualified")]
+
+    name        = models.CharField(max_length=120)
+    channel     = models.CharField(max_length=10, choices=CHANNELS, default="email")
+    subject     = models.CharField(max_length=200, blank=True)  # email only
+    content     = models.TextField()
+    delay_minutes = models.IntegerField(default=0)  # 0 = immediate
+    trigger_on  = models.CharField(max_length=20, choices=TRIGGERS)
+    active      = models.BooleanField(default=True)
+
+    created_at  = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} [{self.trigger_on}/{self.channel}]"
+
+class FollowUpJob(models.Model):
+    STATUSES = [("pending","Pending"), ("sent","Sent"), ("failed","Failed"), ("cancelled","Cancelled")]
+
+    lead          = models.ForeignKey("Lead", on_delete=models.CASCADE, related_name="followups")
+    template      = models.ForeignKey("FollowUpTemplate", on_delete=models.CASCADE)
+    scheduled_for = models.DateTimeField()
+    status        = models.CharField(max_length=12, choices=STATUSES, default="pending")
+    last_error    = models.TextField(blank=True)
+    sent_at       = models.DateTimeField(null=True, blank=True)
+    created_at    = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["status", "scheduled_for"])]
