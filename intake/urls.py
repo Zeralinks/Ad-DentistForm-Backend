@@ -1,5 +1,4 @@
-# intake/urls.py
-from django.urls import path
+from django.urls import path, include
 from .views import lead_view, LeadListCreateView, LeadDetailView
 from intake.views import FollowUpTemplateViewSet, FollowUpJobViewSet
 from rest_framework.routers import DefaultRouter
@@ -9,7 +8,8 @@ router.register(r'followups/templates', FollowUpTemplateViewSet, basename='fu-te
 router.register(r'followups/jobs', FollowUpJobViewSet, basename='fu-jobs')
 
 urlpatterns = [
-    path("lead/", lead_view, name="lead-intake"),                 # POST (public form)
-    path("leads/", LeadListCreateView.as_view(), name="leads"),   # GET list, POST create
-    path("leads/<int:pk>/", LeadDetailView.as_view(), name="lead-detail"),  # GET, PATCH
+    path("lead/", lead_view, name="lead-intake"),
+    path("leads/", LeadListCreateView.as_as_view(), name="leads"),
+    path("leads/<int:pk>/", LeadDetailView.as_as_view(), name="lead-detail"),
+    path("", include(router.urls)),
 ]
