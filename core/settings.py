@@ -36,7 +36,7 @@ SECRET_KEY = 'django-insecure-az3uq*#$d#oweu9ln=v+h0g_^jzavn+x0etsc!6eux87t!*7=g
 DEBUG = True
 
 
-ALLOWED_HOSTS = ["ad-dentistform-backend.onrender.com", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["ad-dentistform-backend-ji3x.onrender.com", "localhost", "127.0.0.1"]
 
 # Application definition
 
